@@ -5,6 +5,6 @@ const router = new Router();
 
 router
     .get("/", test.getRequest)
-    .post('/',test.postRequest);
+    .post("/",test.postRequest);
 
 export default router;
