@@ -3,31 +3,36 @@ import UsersTable from '../models/user.ts';
 import db from '../config/database.ts';
 import { v4 } from "https://deno.land/std/uuid/mod.ts";
 
-export const getRequest = ({ request, response, }:
+export const getRequest = async({ request, response, }:
     { request: Request; response: Response; }) => {
-    response.body = { message: 'first get Request' };
-    response.status = 200;
+    try {
+        db.link([UsersTable]);
+        const res = await UsersTable.select('name','lastname').all();
+        response.body = { res };
+        response.status = 200;
+    } catch (error) {
+        response.body = { error };
+        response.status = 400;
+    }
 }
 
 export const postRequest = async ({ request, response, }:
     { request: Request; response: Response; }) => {
     const body: Body = request.body();
     const { name, lastname } = await body.value;
-    db.link([UsersTable]);
 
     try {
+        db.link([UsersTable]);
         const id = v4.generate();
         await UsersTable.create({
             id,
             name,
             lastname
         })
-        // const res = await UsersTable.count();
-        const count:Number = await UsersTable.count();
-        response.body ={ message:'user created succesful' ,count}
+        response.body ={ message:'user created succesful' }
         response.status = 200;
     } catch (error) {
-        response.body ={ message:'user exists' }
+        response.body ={ message: 'something went wrong' }
         response.status = 400;
     }
 }
